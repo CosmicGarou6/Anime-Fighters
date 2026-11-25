@@ -1,0 +1,28 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  export-android:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Import project resources
+        run: godot --headless --editor --path . --quit
+      - name: Export debug APK
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-debug "Android" build/AnimeFighters.apk
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Anime-Fighters-Android-APK
+          path: build/AnimeFighters.apk
+          if-no-files-found: error
+          retention-days: 7
